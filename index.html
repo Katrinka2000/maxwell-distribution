@@ -1,37 +1,98 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Maxwell-Boltzmann Distribution</title>
-
-<link rel="stylesheet" href="style.css">
+<title>Maxwell Gas Simulation</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+}
+
+header {
+    background: #111827;
+    padding: 10px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.container {
+    display: flex;
+    height: calc(100vh - 50px);
+}
+
+#sim {
+    background: black;
+    border-right: 2px solid #222;
+}
+
+.panel {
+    width: 260px;
+    background: #111827;
+    padding: 10px;
+}
+
+.panel label {
+    display: block;
+    margin-top: 10px;
+}
+
+input {
+    width: 100%;
+}
+
+button {
+    width: 100%;
+    margin-top: 5px;
+    padding: 8px;
+    background: #2563eb;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+canvas {
+    margin-top: 10px;
+}
+
+</style>
 </head>
 
 <body>
 
+<header>
+Maxwell–Boltzmann Gas Simulation
+</header>
+
 <div class="container">
 
-<h1>Распределение Максвелла–Больцмана</h1>
+<canvas id="sim" width="600" height="500"></canvas>
 
-<div class="controls">
+<div class="panel">
 
-<div>
-<label>Температура (K)</label>
-<input type="range" id="tempSlider" min="50" max="1000" value="300">
-<span id="tempValue">300</span>
+<label>Particles</label>
+<input type="range" id="count" min="20" max="300" value="80">
+
+<label>Temperature</label>
+<input type="range" id="temp" min="1" max="10" value="3">
+
+<button id="start">Start</button>
+<button id="pause">Pause</button>
+<button id="reset">Reset</button>
+
+<canvas id="chart" width="240" height="200"></canvas>
+
 </div>
-
-<div>
-<label>Масса частицы</label>
-<input type="range" id="massSlider" min="1" max="10" value="5">
-<span id="massValue"></span>
-</div>
-
-</div>
-
-<canvas id="chart"></canvas>
 
 </div>
 
