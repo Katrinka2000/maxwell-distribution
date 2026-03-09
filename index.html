@@ -2,39 +2,32 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Maxwell Gas Simulation</title>
+<title>Maxwell Distribution</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
 body {
+    font-family: Arial;
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #0f172a;
-    color: white;
+    background: #f3f4f6;
 }
 
 header {
-    background: #111827;
+    background: #1f2937;
+    color: white;
     padding: 10px;
     text-align: center;
-    font-size: 20px;
 }
 
 .container {
     display: flex;
-    height: calc(100vh - 50px);
-}
-
-#sim {
-    background: black;
-    border-right: 2px solid #222;
 }
 
 .panel {
-    width: 260px;
-    background: #111827;
+    width: 300px;
+    background: #e5e7eb;
     padding: 10px;
 }
 
@@ -43,26 +36,18 @@ header {
     margin-top: 10px;
 }
 
-input {
+.panel input, select {
     width: 100%;
 }
 
 button {
     width: 100%;
-    margin-top: 5px;
+    margin-top: 10px;
     padding: 8px;
-    background: #2563eb;
-    border: none;
-    color: white;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #1d4ed8;
 }
 
 canvas {
-    margin-top: 10px;
+    background: white;
 }
 
 </style>
@@ -71,28 +56,34 @@ canvas {
 <body>
 
 <header>
-Maxwell–Boltzmann Gas Simulation
+Maxwell–Boltzmann Distribution
 </header>
 
 <div class="container">
 
-<canvas id="sim" width="600" height="500"></canvas>
-
 <div class="panel">
 
-<label>Particles</label>
-<input type="range" id="count" min="20" max="300" value="80">
+<label>Gas</label>
+<select id="gas">
+<option value="0.004">He</option>
+<option value="0.028">N2</option>
+<option value="0.032">O2</option>
+<option value="0.044">CO2</option>
+<option value="custom">Custom</option>
+</select>
 
-<label>Temperature</label>
-<input type="range" id="temp" min="1" max="10" value="3">
+<label>Molar mass (kg/mol)</label>
+<input id="mass" value="0.028">
 
-<button id="start">Start</button>
-<button id="pause">Pause</button>
-<button id="reset">Reset</button>
+<label>Temperature (K)</label>
+<input id="temp" value="300">
 
-<canvas id="chart" width="240" height="200"></canvas>
+<button id="add">Add graph</button>
+<button id="clear">Clear</button>
 
 </div>
+
+<canvas id="chart" width="800" height="500"></canvas>
 
 </div>
 
