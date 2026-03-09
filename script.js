@@ -1,93 +1,223 @@
-const k = 1.38e-23;
+const canvas = document.getElementById("sim");
+const ctx = canvas.getContext("2d");
 
-function maxwell(v, m, T) {
+const chartCanvas = document.getElementById("chart");
 
-return 4 * Math.PI * Math.pow(m/(2*Math.PI*k*T),1.5)
-* v*v * Math.exp(-m*v*v/(2*k*T));
+let particles = [];
+let running = false;
 
+let countSlider = document.getElementById("count");
+let tempSlider = document.getElementById("temp");
+
+let startBtn = document.getElementById("start");
+let pauseBtn = document.getElementById("pause");
+let resetBtn = document.getElementById("reset");
+
+let W = canvas.width;
+let H = canvas.height;
+
+const k = 1;
+const m = 1;
+
+
+
+function maxwell(v, T) {
+
+    return 4 * Math.PI *
+        Math.pow(m / (2 * Math.PI * k * T), 1.5) *
+        v * v *
+        Math.exp(-m * v * v / (2 * k * T));
 }
 
-function generateData(T,m){
 
-let speeds=[];
-let values=[];
 
-for(let v=0; v<2000; v+=20){
-
-speeds.push(v);
-values.push(maxwell(v,m,T));
-
+function randomSpeed(T) {
+    return (Math.random() - 0.5) * T * 2;
 }
 
-return {speeds,values};
 
+
+function createParticles() {
+
+    particles = [];
+
+    let n = countSlider.value;
+    let T = tempSlider.value;
+
+    for (let i = 0; i < n; i++) {
+
+        particles.push({
+
+            x: Math.random() * W,
+            y: Math.random() * H,
+
+            vx: randomSpeed(T),
+            vy: randomSpeed(T),
+
+            r: 4
+        });
+    }
 }
 
-const tempSlider=document.getElementById("tempSlider");
-const massSlider=document.getElementById("massSlider");
 
-const tempValue=document.getElementById("tempValue");
-const massValue=document.getElementById("massValue");
 
-let m = massSlider.value * 1e-26;
+function update() {
 
-massValue.textContent = m.toExponential(2);
+    if (!running) return;
 
-let data = generateData(300,m);
+    ctx.clearRect(0, 0, W, H);
 
-const ctx=document.getElementById("chart");
+    for (let p of particles) {
 
-let chart=new Chart(ctx,{
+        p.x += p.vx;
+        p.y += p.vy;
 
-type:'line',
+        if (p.x < 0 || p.x > W) p.vx *= -1;
+        if (p.y < 0 || p.y > H) p.vy *= -1;
 
-data:{
-labels:data.speeds,
-datasets:[{
-label:'Probability Density',
-data:data.values,
-borderColor:'blue',
-borderWidth:2,
-fill:false
-}]
-},
+        let speed = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
 
-options:{
-responsive:true,
-scales:{
-x:{
-title:{
-display:true,
-text:'Speed (m/s)'
-}
-},
-y:{
-title:{
-display:true,
-text:'Probability'
-}
-}
-}
+        let color = Math.min(speed * 30, 255);
+
+        ctx.fillStyle =
+            "rgb(" + color + ",100,255)";
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+    }
+
+    updateChart();
+
+    requestAnimationFrame(update);
 }
 
+
+
+startBtn.onclick = () => {
+    running = true;
+    update();
+};
+
+pauseBtn.onclick = () => {
+    running = false;
+};
+
+resetBtn.onclick = () => {
+    running = false;
+    createParticles();
+    draw();
+};
+
+countSlider.oninput = createParticles;
+tempSlider.oninput = createParticles;
+
+
+
+createParticles();
+
+
+
+/* chart */
+
+let chart = new Chart(chartCanvas, {
+
+    type: "line",
+
+    data: {
+        labels: [],
+        datasets: [
+            {
+                label: "Simulation",
+                data: [],
+                borderColor: "red",
+                fill: false
+            },
+            {
+                label: "Maxwell",
+                data: [],
+                borderColor: "cyan",
+                fill: false
+            }
+        ]
+    },
+
+    options: {
+        animation: false,
+        scales: {
+            x: { title: { display: true, text: "speed" } },
+            y: { title: { display: true, text: "f(v)" } }
+        }
+    }
 });
 
-function update(){
 
-let T=tempSlider.value;
-let m=massSlider.value*1e-26;
 
-tempValue.textContent=T;
-massValue.textContent=m.toExponential(2);
+function updateChart() {
 
-let newData=generateData(T,m);
+    let T = tempSlider.value;
 
-chart.data.labels=newData.speeds;
-chart.data.datasets[0].data=newData.values;
+    let speeds = particles.map(
+        p => Math.sqrt(p.vx*p.vx + p.vy*p.vy)
+    );
 
-chart.update();
+    let bins = 25;
 
+    let hist = new Array(bins).fill(0);
+
+    let max = Math.max(...speeds)+0.1;
+
+    for (let s of speeds) {
+
+        let i =
+            Math.floor(s / max * bins);
+
+        if (i >= 0 && i < bins)
+            hist[i]++;
+    }
+
+
+
+    let maxwellData = [];
+
+    for (let i = 0; i < bins; i++) {
+
+        let v = i / bins * max;
+
+        maxwellData.push(
+            maxwell(v, T) * 100
+        );
+    }
+
+
+
+    chart.data.labels =
+        hist.map((_,i)=>i);
+
+    chart.data.datasets[0].data =
+        hist;
+
+    chart.data.datasets[1].data =
+        maxwellData;
+
+    chart.update();
 }
 
-tempSlider.oninput=update;
-massSlider.oninput=update;
+
+
+function draw() {
+
+    ctx.clearRect(0,0,W,H);
+
+    for (let p of particles) {
+
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle="#60a5fa";
+        ctx.fill();
+    }
+
+    updateChart();
+}
+
+draw();
