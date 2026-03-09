@@ -32,7 +32,15 @@ let chart = new Chart(chartCanvas, {
     },
 
     options: {
+
         animation: false,
+
+        plugins: {
+            legend: {
+                position: "top"
+            }
+        },
+
         scales: {
 
             x: {
@@ -103,7 +111,7 @@ addBtn.onclick = () => {
     let x = [];
     let y = [];
 
-    let vmax = 2000;
+    let vmax = 2500;
 
     for (
         let v = 0;
@@ -132,12 +140,14 @@ addBtn.onclick = () => {
         label:
             "T=" +
             T +
-            " M=" +
+            "K  M=" +
             M,
 
         data: y,
 
         borderColor: color,
+
+        borderWidth: 2,
 
         fill: false
     });
@@ -150,6 +160,7 @@ addBtn.onclick = () => {
 clearBtn.onclick = () => {
 
     chart.data.datasets = [];
+
     chart.update();
 
 };
